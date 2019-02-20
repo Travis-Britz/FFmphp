@@ -131,23 +131,29 @@ class MP4Anime extends MP4
 }
 ```
 
-Here is an another example, this time creating a new `Webm` format from scratch:
+Here is an another example, this time creating a new MP4 format from scratch:
 
 ```php
 <?php
 
-use FFmphp\Formats\OutputFormat;
 use FFmphp\Formats\InteractsWithOutput;
+use FFmphp\Formats\OutputFormat;
 
-class Webm implements OutputFormat
+class MyMP4 implements OutputFormat
 {
     use InteractsWithOutput;
 
     public function build()
     {
         return $this->withOptions([
-            '-vcodec' => 'libvpx-vp9',
-            '-acodec' => 'libopus',
+            '-vcodec' => 'libx264',
+            '-acodec' => 'aac',
+            '-b:a' => '128k',
+            '-preset' => 'slower',
+            '-crf' => '26',
+            '-max_muxing_queue_size' => '9999',
+            '-movflags' => '+faststart',
+            '-threads' => '4',
         ]);
     }
 }
@@ -156,7 +162,7 @@ class Webm implements OutputFormat
 To use your output format, simply reference it in `save()`:
 
 ```php
-->save('output.webm', Webm::class)
+->save('output.mp4', MyMP4::class)
 ```
 
 ### Save Multiple Files with One Command
