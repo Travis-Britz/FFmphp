@@ -173,7 +173,7 @@ class CommandBuilderTest extends BaseTestCase
         $this->assertTrue(true);
     }
 
-    public function test_when_method_conditionally_applies_callback()
+    public function test_when_method_on_commands_conditionally_applies_callback()
     {
         $command = FFmphp::load('in')
                          ->save('out', MP4::class)
@@ -192,6 +192,29 @@ class CommandBuilderTest extends BaseTestCase
                          ->toCommand();
 
         $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out -vcodec libx264 -acodec aac out2', $command);
+    }
+
+    public function test_when_method_on_output_conditionally_applies_callback()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out', MP4::class, function (OutputBuilder $output) {
+                             $output->when(false, function (OutputBuilder $output) {
+                                 $output->withOption('-b:a', '128k');
+                             });
+                         })
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
+
+        $command = FFmphp::load('in')
+                         ->save('out', MP4::class, function (OutputBuilder $output) {
+                             $output->when(true, function (OutputBuilder $output) {
+                                 $output->withOption('-b:a', '128k');
+                             });
+                         })
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac -b:a 128k out', $command);
     }
 
     public function test_null_output_replaced_on_windows()

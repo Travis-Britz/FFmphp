@@ -29,6 +29,20 @@ class OutputBuilder
         return $this;
     }
 
+    /**
+     * @param bool $condition
+     * @param Callable $callback
+     * @return \FFmphp\Formats\OutputBuilder
+     */
+    public function when($condition, Callable $callback)
+    {
+        if ($condition) {
+            $callback($this);
+        }
+
+        return $this;
+    }
+
     public function destination($destination)
     {
         if ('\\' == \DIRECTORY_SEPARATOR) {

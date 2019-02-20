@@ -34,7 +34,7 @@ class CommandBuilder
         if (is_array($options)) {
             $builder = $builder->withOptions($options);
         } elseif (is_callable($options)) {
-            $builder = $options($builder);
+            $options($builder);
         }
 
         $this->outputs[] = $builder->destination($destination);
