@@ -6,10 +6,10 @@ interface OutputFormat
 {
 
     /**
+     * This method is responsible for preparing the options
+     * that will be passed to an FFmpeg output stream.
      *
-     *
-     *
-     * @return OutputBuilder
+     * @return \FFmphp\Formats\OutputBuilder
      */
     public function build();
 }
