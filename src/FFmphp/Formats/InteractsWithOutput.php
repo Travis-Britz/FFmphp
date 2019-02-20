@@ -2,17 +2,19 @@
 
 namespace FFmphp\Formats;
 
+use FFmphp\StreamBuilder;
+
 /**
  * Trait InteractsWithOutput
  *
- * @method \FFmphp\Formats\OutputBuilder withOption($option, $value = true)
- * @method \FFmphp\Formats\OutputBuilder withOptions(array $options)
+ * @method \FFmphp\StreamBuilder withOption($option, $value = true)
+ * @method \FFmphp\StreamBuilder withOptions(array $options)
  *
  */
 trait InteractsWithOutput
 {
     public function __call($method, $parameters)
     {
-        return (new OutputBuilder)->$method(...$parameters);
+        return (new StreamBuilder)->$method(...$parameters);
     }
 }

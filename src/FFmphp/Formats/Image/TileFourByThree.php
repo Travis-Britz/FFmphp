@@ -2,14 +2,16 @@
 
 namespace FFmphp\Formats\Image;
 
-use FFmphp\Formats\OutputBuilder;
+use FFmphp\Formats\InteractsWithOutput;
 use FFmphp\Formats\OutputFormat;
 
 class TileFourByThree implements OutputFormat
 {
+    use InteractsWithOutput;
+
     public function build()
     {
-        return (new OutputBuilder)->withOptions([
+        return $this->withOptions([
             '-filter:v' => 'thumbnail,tile=4x3',
             '-frames:v' => '1',
             '-vsync' => 'vfr',

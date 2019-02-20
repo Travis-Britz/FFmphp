@@ -22,16 +22,15 @@ class FFmphp
 
     /**
      *
-     * @param $input
-     * @param array $options
+     * @param $input_stream
+     * @param array $input_options
      * @return \FFmphp\CommandBuilder
      */
-    public static function load($input, $options = [])
+    public static function load($input_stream, $input_options = [])
     {
         return (new CommandBuilder)
             ->command(static::$ffmpeg)
-            ->withOptions($options)
-            ->withOption('-i', $input)
+            ->withInput($input_stream, $input_options)
             ->timeoutAfter(static::$timeout);
     }
 

@@ -2,6 +2,8 @@
 
 namespace FFmphp\Formats;
 
+use FFmphp\StreamBuilder;
+
 /**
  * Class NullFormat
  *
@@ -12,6 +14,6 @@ class NullFormat implements OutputFormat
 {
     public function build()
     {
-        return (new OutputBuilder);
+        return (new StreamBuilder);
     }
 }

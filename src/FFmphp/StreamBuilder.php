@@ -1,13 +1,13 @@
 <?php
 
-namespace FFmphp\Formats;
+namespace FFmphp;
 
-class OutputBuilder
+class StreamBuilder
 {
 
     protected $options = [];
 
-    protected $destination;
+    protected $stream_url;
 
     public function withOptions($options)
     {
@@ -32,7 +32,7 @@ class OutputBuilder
     /**
      * @param bool $condition
      * @param Callable $callback
-     * @return \FFmphp\Formats\OutputBuilder
+     * @return \FFmphp\StreamBuilder
      */
     public function when($condition, Callable $callback)
     {
@@ -43,29 +43,32 @@ class OutputBuilder
         return $this;
     }
 
-    public function destination($destination)
-    {
-        if ('\\' == \DIRECTORY_SEPARATOR) {
-            $this->destination = preg_replace('/^\/dev\/null$/', 'NUL', $destination);
-        } else {
-            $this->destination = $destination;
-        }
-
-        return $this;
-    }
-
     public function toArray()
     {
         $options = [];
+
         foreach ($this->options as $option => $value) {
-            $options[] = $option;
+            if ($value !== false) {
+                $options[] = $option;
+            }
             if ($value !== true) {
                 $options[] = $value;
             }
         }
-        $options[] = $this->destination;
+
+        $options[] = $this->stream_url;
 
         return $options;
     }
 
+    public function url($stream_url)
+    {
+        if ('\\' == \DIRECTORY_SEPARATOR) {
+            $this->stream_url = preg_replace('/^\/dev\/null$/', 'NUL', $stream_url);
+        } else {
+            $this->stream_url = $stream_url;
+        }
+
+        return $this;
+    }
 }

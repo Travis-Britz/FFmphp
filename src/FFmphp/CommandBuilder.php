@@ -9,9 +9,11 @@ use Symfony\Component\Process\Process;
 class CommandBuilder
 {
 
-    protected $arguments = [];
+    protected $options = [];
 
-    protected $outputs = [];
+    protected $input_streams = [];
+
+    protected $output_streams = [];
 
     protected $command;
 
@@ -37,7 +39,7 @@ class CommandBuilder
             $options($builder);
         }
 
-        $this->outputs[] = $builder->destination($destination);
+        $this->output_streams[] = $builder->url($destination);
 
         return $this;
     }
@@ -62,20 +64,46 @@ class CommandBuilder
 
     public function toArray()
     {
-        $command = [$this->command];
+        return array_merge(
+            [$this->command],
+            $this->getOptionsArray(),
+            $this->getInputStreamsArray(),
+            $this->getOutputStreamsArray()
+        );
+    }
 
-        foreach ($this->arguments as $argument => $value) {
-            $command[] = $argument;
+    public function getOptionsArray()
+    {
+        $command = [];
+        foreach ($this->options as $argument => $value) {
+            if ($value !== false) {
+                $command[] = $argument;
+            }
             if ($value !== true) {
                 $command[] = $value;
             }
         }
 
-        foreach ($this->outputs as $output) {
-            $command = array_merge($command, $output->toArray());
-        }
-
         return $command;
+
+    }
+
+    public function getInputStreamsArray()
+    {
+        $array = [];
+        foreach ($this->input_streams as $stream) {
+            $array = array_merge($array, $stream->toArray());
+        }
+        return $array;
+    }
+
+    public function getOutputStreamsArray()
+    {
+        $array = [];
+        foreach ($this->output_streams as $stream) {
+            $array = array_merge($array, $stream->toArray());
+        }
+        return $array;
     }
 
     /**
@@ -118,7 +146,7 @@ class CommandBuilder
      */
     public function withOption($option, $value = true)
     {
-        $this->arguments[$option] = $value;
+        $this->options[$option] = $value;
         return $this;
     }
 
@@ -131,6 +159,16 @@ class CommandBuilder
     public function timeoutAfter($timeout)
     {
         $this->timeout = $timeout;
+        return $this;
+    }
+
+    public function withInput($stream_url, $stream_options = [])
+    {
+        $this->input_streams[] = (new StreamBuilder)
+            ->withOptions($stream_options)
+            ->withOption('-i')
+            ->url($stream_url);
+
         return $this;
     }
 }

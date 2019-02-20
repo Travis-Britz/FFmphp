@@ -8,6 +8,7 @@ use FFmphp\Formats\Audio\MP3;
 use FFmphp\Formats\NullFormat;
 use FFmphp\Formats\Video\MP4;
 use FFmphp\Formats\OutputBuilder;
+use FFmphp\StreamBuilder;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class CommandBuilderTest extends BaseTestCase
@@ -48,7 +49,7 @@ class CommandBuilderTest extends BaseTestCase
     public function test_save_accepts_options_closure()
     {
         $command = FFmphp::load('in')
-                         ->save('out', MP4::class, function (OutputBuilder $output) {
+                         ->save('out', MP4::class, function (StreamBuilder $output) {
                              return $output->withOption('-crf', 26)
                                            ->withOption('-preset', 'slower');
                          })
@@ -197,8 +198,8 @@ class CommandBuilderTest extends BaseTestCase
     public function test_when_method_on_output_conditionally_applies_callback()
     {
         $command = FFmphp::load('in')
-                         ->save('out', MP4::class, function (OutputBuilder $output) {
-                             $output->when(false, function (OutputBuilder $output) {
+                         ->save('out', MP4::class, function (StreamBuilder $output) {
+                             $output->when(false, function (StreamBuilder $output) {
                                  $output->withOption('-b:a', '128k');
                              });
                          })
@@ -207,8 +208,8 @@ class CommandBuilderTest extends BaseTestCase
         $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
 
         $command = FFmphp::load('in')
-                         ->save('out', MP4::class, function (OutputBuilder $output) {
-                             $output->when(true, function (OutputBuilder $output) {
+                         ->save('out', MP4::class, function (StreamBuilder $output) {
+                             $output->when(true, function (StreamBuilder $output) {
                                  $output->withOption('-b:a', '128k');
                              });
                          })
