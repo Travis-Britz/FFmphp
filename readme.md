@@ -111,7 +111,7 @@ FFmphp::load($file)
 
 The best way to keep your project organized is to create a class for every type of file that you will save.
 
-You can either create your class from scratch, or you may _extend_ another format. Your class must implement the [`FFmphp\Formats\OutputFormat`](./src/) interface, which has one method: `build()`.
+You can either create your class from scratch, or you may _extend_ another format. Your class must implement the [`FFmphp\Formats\OutputFormat`](src/FFmphp/Formats/OutputFormat.php) interface, which has one method: `build()`.
 
 Here is an example of creating an MP4 video format that is tuned for animation content by _extending_ the existing MP4 class:
 
