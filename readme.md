@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Travis-Britz/FFmphp.svg?branch=master)](https://travis-ci.org/Travis-Britz/FFmphp)
+
 # FFmphp
 
 FFmphp is an object-oriented php wrapper for running FFmpeg. Its goal is to be quick
