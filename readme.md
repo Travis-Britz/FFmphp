@@ -228,7 +228,7 @@ The third argument can also be a function:
 
 ```php
 FFmphp::load($input)
-    ->save('output.mp4', MP4::class, function (OutputBuilder $output) {
+    ->save('output.mp4', MP4::class, function (StreamBuilder $output) {
         return $output->withOption('-preset', 'veryslow')
                       ->withOption('-crf', '28');
     })
