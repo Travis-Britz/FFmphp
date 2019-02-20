@@ -1,0 +1,31 @@
+language: php
+
+dist: xenial
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+    - php: 7.2
+    - php: 7.3
+
+before_install:
+  - sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
+  - sudo apt-get update -q
+  - travis_retry composer self-update
+
+install:
+  - sudo apt-get install -y ffmpeg
+  - composer update --prefer-dist --no-suggest
+
+script:
+  - vendor/bin/phpunit
