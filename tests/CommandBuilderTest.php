@@ -273,4 +273,17 @@ class CommandBuilderTest extends BaseTestCase
 
         $this->assertCommandEquals('ffmpeg -n -i in out', $command);
     }
+
+    public function test_boolean_values_in_array()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out')
+                         ->withOptions([
+                             '-n' => true,
+                             '-y' => false,
+                         ])
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -n -i in out', $command);
+    }
 }
