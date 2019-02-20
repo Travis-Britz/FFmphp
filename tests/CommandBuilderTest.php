@@ -8,10 +8,9 @@ use FFmphp\Formats\Audio\MP3;
 use FFmphp\Formats\NullFormat;
 use FFmphp\Formats\Video\MP4;
 use FFmphp\Formats\OutputBuilder;
-use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-class CommandBuilderTest extends TestCase
+class CommandBuilderTest extends BaseTestCase
 {
 
     public $timestampExpression = '/^-?\d\d:\d\d:\d\d.\d+$/';
@@ -22,7 +21,7 @@ class CommandBuilderTest extends TestCase
                          ->save('out', MP4::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
     }
 
     public function test_save_format_accepts_object_instances()
@@ -31,7 +30,7 @@ class CommandBuilderTest extends TestCase
                          ->save('out', new MP4)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
     }
 
     public function test_save_accepts_options_array()
@@ -43,7 +42,7 @@ class CommandBuilderTest extends TestCase
                          ])
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac -crf 26 -preset slower out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac -crf 26 -preset slower out', $command);
     }
 
     public function test_save_accepts_options_closure()
@@ -55,7 +54,7 @@ class CommandBuilderTest extends TestCase
                          })
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac -crf 26 -preset slower out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac -crf 26 -preset slower out', $command);
     }
 
     public function test_save_format_rejects_invalid_formats_with_exception()
@@ -80,7 +79,7 @@ class CommandBuilderTest extends TestCase
                          ->save('out3', MP3::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out -vcodec libx264 -acodec aac out2 -vn -acodec libmp3lame out3', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out -vcodec libx264 -acodec aac out2 -vn -acodec libmp3lame out3', $command);
     }
 
     public function test_save_arguments_are_optional()
@@ -89,7 +88,7 @@ class CommandBuilderTest extends TestCase
                          ->save('out')
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in out', $command);
+        $this->assertCommandEquals('ffmpeg -i in out', $command);
     }
 
     public function test_raw_builder()
@@ -101,7 +100,7 @@ class CommandBuilderTest extends TestCase
             'output.mp4',
         ])->toCommand();
 
-        $this->assertEquals('ffmpeg -y -i input.mp4 output.mp4', $command);
+        $this->assertCommandEquals('ffmpeg -y -i input.mp4 output.mp4', $command);
 
         $command = FFmphp::raw([
             '-y',
@@ -112,7 +111,7 @@ class CommandBuilderTest extends TestCase
             'output.mp4',
         ])->toCommand();
 
-        $this->assertEquals('ffmpeg -y -i input.mp4 -i input2 output.mp4', $command);
+        $this->assertCommandEquals('ffmpeg -y -i input.mp4 -i input2 output.mp4', $command);
     }
 
     public function test_run_callback_is_called_with_correct_parameters()
@@ -183,7 +182,7 @@ class CommandBuilderTest extends TestCase
                          })
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
 
         $command = FFmphp::load('in')
                          ->save('out', MP4::class)
@@ -192,7 +191,7 @@ class CommandBuilderTest extends TestCase
                          })
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out -vcodec libx264 -acodec aac out2', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out -vcodec libx264 -acodec aac out2', $command);
     }
 
     public function test_null_output_replaced_on_windows()
@@ -202,9 +201,9 @@ class CommandBuilderTest extends TestCase
                          ->toCommand();
 
         if ('\\' == \DIRECTORY_SEPARATOR) {
-            $this->assertEquals('ffmpeg -i in -f mp4 NUL', $command);
+            $this->assertCommandEquals('ffmpeg -i in -f mp4 NUL', $command);
         } else {
-            $this->assertEquals('ffmpeg -i in -f mp4 "/dev/null"', $command);
+            $this->assertCommandEquals('ffmpeg -i in -f mp4 /dev/null', $command);
         }
     }
 

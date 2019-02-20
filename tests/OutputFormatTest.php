@@ -11,11 +11,10 @@ use FFmphp\Formats\Image\TileFourByThree;
 use FFmphp\Formats\NullFormat;
 use FFmphp\Formats\Video\MP4;
 use FFmphp\Formats\Video\Webm;
-use PHPUnit\Framework\TestCase;
 use Tests\Formats\ExtendedH265MP4;
 use Tests\Formats\ExtendedSlowerMP4;
 
-class OutputFormatTest extends TestCase
+class OutputFormatTest extends BaseTestCase
 {
     public function test_format_mp4()
     {
@@ -23,7 +22,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', MP4::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac out', $command);
     }
 
     public function test_format_webm()
@@ -32,7 +31,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', Webm::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libvpx-vp9 -acodec libopus out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libvpx-vp9 -acodec libopus out', $command);
     }
 
     public function test_format_mp3()
@@ -41,7 +40,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', MP3::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vn -acodec libmp3lame out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vn -acodec libmp3lame out', $command);
     }
 
     public function test_format_null()
@@ -50,7 +49,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', NullFormat::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in out', $command);
+        $this->assertCommandEquals('ffmpeg -i in out', $command);
     }
 
     public function test_extending_mp4_contains_new_options()
@@ -59,7 +58,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', ExtendedSlowerMP4::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx264 -acodec aac -preset slower out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx264 -acodec aac -preset slower out', $command);
     }
 
     public function test_extending_mp4_replaces_previous_option()
@@ -68,7 +67,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', ExtendedH265MP4::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -vcodec libx265 -acodec aac -preset slower out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -vcodec libx265 -acodec aac -preset slower out', $command);
     }
 
     public function test_format_video_poster()
@@ -77,7 +76,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', Poster::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -filter:v thumbnail,thumbnail -frames:v 1 -vsync vfr out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -filter:v thumbnail,thumbnail -frames:v 1 -vsync vfr out', $command);
     }
 
     public function test_format_tile_five_by_five()
@@ -86,7 +85,7 @@ class OutputFormatTest extends TestCase
                          ->save('out', TileFiveByFive::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -filter:v thumbnail,tile=5x5 -frames:v 1 -vsync vfr out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -filter:v thumbnail,tile=5x5 -frames:v 1 -vsync vfr out', $command);
     }
 
     public function test_format_tile_four_by_three()
@@ -95,6 +94,6 @@ class OutputFormatTest extends TestCase
                          ->save('out', TileFourByThree::class)
                          ->toCommand();
 
-        $this->assertEquals('ffmpeg -i in -filter:v thumbnail,tile=4x3 -frames:v 1 -vsync vfr out', $command);
+        $this->assertCommandEquals('ffmpeg -i in -filter:v thumbnail,tile=4x3 -frames:v 1 -vsync vfr out', $command);
     }
 }
