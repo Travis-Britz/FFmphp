@@ -240,4 +240,37 @@ class CommandBuilderTest extends BaseTestCase
               ->save('/dev/null', NullFormat::class, ['-f' => 'mp4'])
               ->run();
     }
+
+    public function test_global_command_options_go_first()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out')
+                         ->withOption('-y')
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -y -i in out', $command);
+    }
+
+    public function test_multiple_input_streams_with_global_option_and_input_option_maintains_order()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out')
+                         ->withInput('testsrc=s=hd720:d=5', ['-f' => 'lavfi'])
+                         ->save('out2')
+                         ->withOption('-y')
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -y -i in -f lavfi -i testsrc=s=hd720:d=5 out out2', $command);
+    }
+
+    public function test_options_with_false_value_are_not_included()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out')
+                         ->withOption('-n')
+                         ->withOption('-y', false)
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -n -i in out', $command);
+    }
 }

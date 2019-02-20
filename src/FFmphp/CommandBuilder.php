@@ -75,11 +75,11 @@ class CommandBuilder
     public function getOptionsArray()
     {
         $command = [];
-        foreach ($this->options as $argument => $value) {
+        foreach ($this->options as $key => $value) {
             if ($value !== false) {
-                $command[] = $argument;
+                $command[] = $key;
             }
-            if ($value !== true) {
+            if (!is_bool($value)) {
                 $command[] = $value;
             }
         }
