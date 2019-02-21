@@ -42,7 +42,7 @@ FFmphp::load($infile)
 
 FFmpeg will guess the output type based on the extension.
 
-Most of the time, however, you will tell `save()` how to format the output by passing the name of an `OutputFormat` interface:
+Most of the time, however, you will give `save()` the name of an `OutputFormat` interface:
 
 ```php
 FFmphp::load($infile)
@@ -50,12 +50,10 @@ FFmphp::load($infile)
     ->run();
 ```
 
-In the example above we are passing the _fully qualified class name_ to the `save()` method. However, for the rest of the examples we will use php's [::class](https://stackoverflow.com/a/42064777/6038111) syntax instead. Here is what the previous example looks like with this new syntax:
+In the above example we are using the _fully qualified class name_ of the format. For the rest of the document we will use php's [`::class`](https://stackoverflow.com/a/42064777/6038111) syntax instead. Here is what the previous example looks like with this new syntax:
 
 ```php
 use FFmphp\Formats\Video\MP4;
-
-// ...
 
 FFmphp::load($infile)
     ->save('outfile.mp4', MP4::class)
@@ -74,14 +72,14 @@ FFmphp::load($infile)
 
 It is recommended to create a class for each different output format that your application will save. An output format includes bitrate, codec, container type, resolution, and more, but we will cover that later.
 
-To make getting started easier, these basic formats are included:
+To make getting started easier, these basic formats are included as references:
 
--   `FFmphp\Formats\Video\MP4`
--   `FFmphp\Formats\Video\Webm`
--   `FFmphp\Formats\Audio\MP3`
--   `FFmphp\Formats\Image\Poster` (Thumbnail)
--   `FFmphp\Formats\Image\TileFiveByFive`
--   `FFmphp\Formats\Image\TileFourByThree`
+-   [`FFmphp\Formats\Video\MP4`](src/FFmphp/Formats/Video/MP4.php)
+-   [`FFmphp\Formats\Video\Webm`](src/FFmphp/Formats/Video/Webm.php)
+-   [`FFmphp\Formats\Audio\MP3`](src/FFmphp/Formats/Audio/MP3.php)
+-   [`FFmphp\Formats\Image\Poster`](src/FFmphp/Formats/Image/Poster.php) (Thumbnail)
+-   [`FFmphp\Formats\Image\TileFiveByFive`](src/FFmphp/Formats/Image/TileFiveByFive.php)
+-   [`FFmphp\Formats\Image\TileFourByThree`](src/FFmphp/Formats/Image/TileFourByThree.php)
 
 ### Saving Thumbnails
 
