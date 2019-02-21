@@ -1,28 +1,34 @@
 {
-  "name": "tbritz/ffmphp",
-  "description": "An object-oriented FFmpeg wrapper for php",
-  "type": "library",
-  "require": {
-    "php": "^7.1.3",
-    "symfony/process": "^4.2"
-  },
-  "authors": [
-    {
-      "name": "Travis Britz",
-      "email": "travisbritz@outlook.com"
+    "name": "tbritz/ffmphp",
+    "description": "An object-oriented FFmpeg wrapper for php",
+    "keywords": [
+        "FFmpeg",
+        "video",
+        "transcoding"
+    ],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^7.1.3",
+        "symfony/process": "^4.2"
+    },
+    "authors": [
+        {
+            "name": "Travis Britz",
+            "email": "travisbritz@outlook.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "FFmphp\\": "src/FFmphp/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     }
-  ],
-  "require-dev": {
-    "phpunit/phpunit": "^8.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "FFmphp\\": "src/FFmphp/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Tests\\": "tests/"
-    }
-  }
 }
