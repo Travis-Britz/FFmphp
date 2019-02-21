@@ -1,10 +1,13 @@
 {
     "name": "tbritz/ffmphp",
-    "description": "An object-oriented FFmpeg wrapper for php",
+    "description": "Convert media, save previews, and more. All with clean, elegant syntax that won't get in your way.",
     "keywords": [
         "FFmpeg",
         "video",
-        "transcoding"
+        "converting",
+        "transcoding",
+        "thumbnail",
+        "preview"
     ],
     "license": "MIT",
     "type": "library",

@@ -2,8 +2,7 @@
 
 # FFmphp
 
-FFmphp is an object-oriented php wrapper for running FFmpeg. Its goal is to be quick
-to learn and integrate for php developers, while being easy to tune for experienced FFmpeg users.
+A simple, clean, and elegant way to run FFmpeg from your php applications.
 
 ## Installation
 
@@ -42,7 +41,7 @@ FFmphp::load($infile)
 
 FFmpeg will guess the output type based on the extension.
 
-Most of the time, however, you will give `save()` the name of an `OutputFormat` interface:
+Most of the time, however, you will give `save()` the name of an `OutputFormat`:
 
 ```php
 FFmphp::load($infile)
@@ -50,7 +49,7 @@ FFmphp::load($infile)
     ->run();
 ```
 
-In the above example we are using the _fully qualified class name_ of the format. For the rest of the document we will use php's [`::class`](https://stackoverflow.com/a/42064777/6038111) syntax instead. Here is what the previous example looks like with this new syntax:
+In the above example we are using the _fully qualified class name_ of the format. For the rest of the document we will use php's [`::class`](https://stackoverflow.com/a/42064777/6038111) syntax instead. Here is what the previous example looks like, rewritten:
 
 ```php
 use FFmphp\Formats\Video\MP4;
@@ -70,9 +69,9 @@ FFmphp::load($infile)
     ->run();
 ```
 
-It is recommended to create a class for each different output format that your application will save. An output format includes bitrate, codec, container type, resolution, and more, but we will cover that later.
+It is recommended to create an `OutputFormat` class for every type of file that you want to save. An output format includes codecs, bitrate, container, resolution, and more, but we will cover that later.
 
-To make getting started easier, these basic formats are included as references:
+To make it easier to start writing code, these formats are included:
 
 -   [`FFmphp\Formats\Video\MP4`](src/FFmphp/Formats/Video/MP4.php)
 -   [`FFmphp\Formats\Video\Webm`](src/FFmphp/Formats/Video/Webm.php)
@@ -81,9 +80,11 @@ To make getting started easier, these basic formats are included as references:
 -   [`FFmphp\Formats\Image\TileFiveByFive`](src/FFmphp/Formats/Image/TileFiveByFive.php)
 -   [`FFmphp\Formats\Image\TileFourByThree`](src/FFmphp/Formats/Image/TileFourByThree.php)
 
+Note: Every application is unique, and you will likely want to create your own formats which are tuned to your needs.
+
 ### Saving Thumbnails
 
-Saving a video poster or thumbnail image works the same way:
+Saving a video poster, or thumbnail image, works the same way:
 
 ```php
 FFmphp::load($file)
@@ -181,9 +182,7 @@ The above command would run FFmpeg once and create 5 files.
 
 ### Getting the Command
 
-If you want to see the command that will be run without running it, you can replace the `run()` method with `toCommand()`.
-
-For example:
+If you want to see the command that will be run (without running it), you can use `toCommand()`:
 
 ```php
 FFmphp::load($input)
@@ -191,7 +190,7 @@ FFmphp::load($input)
     ->toCommand();
 ```
 
-Might produce this:
+Which will produce something like this:
 
 ```
 ffmpeg -i "/path/to/input.mp4" -acodec aac -vcodec libx264 -b:a 128k -preset slower "output.mp4"
@@ -213,22 +212,19 @@ FFmphp::load($input)
     ->run();
 ```
 
-The second argument of `when()` is a callback function that will only be applied when the first argument is `true`.
+The second parameter of `when()` accepts a function that will only be applied when the first argument is `true`.
 
 ### Adding Encoder Options
 
-The third parameter of `save()` accepts an associative array of options that will be added to the output. In some cases this may be more convenient than creating a new class for each output variation.
+The third parameter of `save()` accepts an associative array of options that will be added to the output. In some cases this may be more convenient than creating a new class for each output type.
 
 ```php
 FFmphp::load($input)
-    ->save('output.mp4', MP4::class, [
-        '-preset' => 'veryslow',
-        '-crf' => '28',
-    ])
+    ->save('output.mp4', MP4::class, ['-preset' => 'veryslow', '-crf' => '28',])
     ->run();
 ```
 
-The third argument can also be a function:
+The third argument can also be a closure, if you need more control:
 
 ```php
 FFmphp::load($input)
@@ -243,7 +239,7 @@ Using this feature excessively will make your code harder to read, which is why 
 
 ### The Progress Callback
 
-The `run()` method accepts a function which will be called approximately once a second as long as FFmpeg is running. The function will receive the current time position of the input, formatted like `00:00:00.00`.
+The `run()` method accepts a callback function which will be run approximately once every second for as long as FFmpeg is running. The function will receive the current time position of the input, formatted like `00:00:00.00`.
 
 For example:
 
