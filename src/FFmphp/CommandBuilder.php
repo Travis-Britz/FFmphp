@@ -8,13 +8,7 @@ use Symfony\Component\Process\Process;
 
 class CommandBuilder
 {
-
-    /**
-     * The global options for FFmpeg.
-     *
-     * @var array
-     */
-    protected $options = [];
+    use HasOptions, RunsCommands;
 
     /**
      * The input streams to FFmpeg.
@@ -29,20 +23,6 @@ class CommandBuilder
      * @var array
      */
     protected $output_streams = [];
-
-    /**
-     * The command to run.
-     *
-     * @var string
-     */
-    protected $command;
-
-    /**
-     * The number of seconds the command will be allowed to run. "null" or "0" means no limit.
-     *
-     * @var int
-     */
-    protected $timeout;
 
     /**
      * Attaches a new output stream to the command.
@@ -78,30 +58,6 @@ class CommandBuilder
     }
 
     /**
-     * Runs the FFmpeg command.
-     *
-     * @param callable|null $callback A function to be called every time FFmpeg prints a new status line, which occurs
-     *                                approximately once every second. The function receives the current time of the
-     *                                input stream.
-     *
-     * @throws \Symfony\Component\Process\Exception\ProcessFailedException
-     * @throws \Symfony\Component\Process\Exception\ProcessTimedOutException
-     */
-    public function run(Callable $callback = null)
-    {
-        $process = new Process($this->toArray());
-        $process->setTimeout($this->timeout);
-        $process->mustRun(function ($type, $buffer) use ($callback) {
-            if (Process::ERR === $type) {
-                //frame=   55 fps=9.2 q=0.0 q=0.0 q=0.0 q=14.4 q=0.0 q=0.0 size=       0kB time=00:00:02.61 bitrate=   0.1kbits/s speed=0.254x
-                if (is_callable($callback) && (preg_match('/size=.*? time=(.*?) /', $buffer, $matches))) {
-                    $callback($matches[1]);
-                }
-            }
-        });
-    }
-
-    /**
      * Get the full command as an array that can be used by the Symfony Process.
      *
      * @return array
@@ -114,27 +70,6 @@ class CommandBuilder
             $this->getInputStreamsArray(),
             $this->getOutputStreamsArray()
         );
-    }
-
-    /**
-     * Get an array of the global ffmpeg options.
-     *
-     * @return array
-     */
-    public function getOptionsArray()
-    {
-        $command = [];
-        foreach ($this->options as $key => $value) {
-            if ($value !== false) {
-                $command[] = $key;
-            }
-            if (!is_bool($value)) {
-                $command[] = $value;
-            }
-        }
-
-        return $command;
-
     }
 
     /**
@@ -166,98 +101,6 @@ class CommandBuilder
     }
 
     /**
-     * Get the full FFmpeg command as it would be used on the command line.
-     *
-     * @return string
-     */
-    public function toCommand()
-    {
-        $process = new Process($this->toArray());
-
-        return $process->getCommandLine();
-    }
-
-    /**
-     * Conditionally chain method calls onto the current CommandBuilder instance.
-     *
-     * @param bool     $condition
-     * @param Callable $callback The function called when $condition is true. It will receive the current command
-     *                           builder instance as its first argument.
-     *
-     * @return $this
-     */
-    public function when($condition, Callable $callback)
-    {
-        if ($condition) {
-            $callback($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Add an array of global options for the ffmpeg command.
-     *
-     * For options that do not have a value (such as "-y"), use a boolean value "true" to add the option
-     * or "false" to remove it.
-     *
-     * @param array $options
-     *
-     * @return $this
-     */
-    public function withOptions(array $options)
-    {
-        $builder = $this;
-        foreach ($options as $option => $value) {
-            $builder = $builder->withOption($option, $value);
-        }
-        return $builder;
-    }
-
-    /**
-     * Add a global option to the ffmpeg command.
-     *
-     * Use a boolean value of "false" to remove an option, or "true" if it does not
-     * accept a value.
-     *
-     * @param             string $option
-     * @param bool|string        $value
-     *
-     * @return $this
-     */
-    public function withOption($option, $value = true)
-    {
-        $this->options[$option] = $value;
-        return $this;
-    }
-
-    /**
-     * Set the command to run.
-     *
-     * @param string $command The command to execute.
-     *
-     * @return $this
-     */
-    public function command($command)
-    {
-        $this->command = $command;
-        return $this;
-    }
-
-    /**
-     * Set the time limit for the process.
-     *
-     * @param int $timeout The number of seconds to wait before the process times out.
-     *
-     * @return $this
-     */
-    public function timeoutAfter($timeout)
-    {
-        $this->timeout = $timeout;
-        return $this;
-    }
-
-    /**
      * Add an input stream to the command.
      *
      * @param       string $stream_url     The input url. Usually a file name, but any protocol supported by FFmpeg is
@@ -270,6 +113,7 @@ class CommandBuilder
     {
         $this->input_streams[] = (new StreamBuilder)
             ->withOptions($stream_options)
+            // "-i" is added last because it needs to directly precede the url
             ->withOption('-i')
             ->url($stream_url);
 
