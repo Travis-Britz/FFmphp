@@ -5,6 +5,11 @@ namespace FFmphp\Formats\Image;
 use FFmphp\Formats\InteractsWithOutput;
 use FFmphp\Formats\OutputFormat;
 
+/**
+ * Class TileFiveByFive
+ *
+ * This class applies filters to create a 5x5 tiled image.
+ */
 class TileFiveByFive implements OutputFormat
 {
     use InteractsWithOutput;

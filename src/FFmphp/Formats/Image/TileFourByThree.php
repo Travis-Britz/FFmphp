@@ -5,6 +5,11 @@ namespace FFmphp\Formats\Image;
 use FFmphp\Formats\InteractsWithOutput;
 use FFmphp\Formats\OutputFormat;
 
+/**
+ * Class TileFourByThree
+ *
+ * This class applies filters to create a 4x3 tiled image.
+ */
 class TileFourByThree implements OutputFormat
 {
     use InteractsWithOutput;

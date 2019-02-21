@@ -9,20 +9,53 @@ use Symfony\Component\Process\Process;
 class CommandBuilder
 {
 
+    /**
+     * The global options for FFmpeg.
+     *
+     * @var array
+     */
     protected $options = [];
 
+    /**
+     * The input streams to FFmpeg.
+     *
+     * @var array
+     */
     protected $input_streams = [];
 
+    /**
+     * The output streams for FFmpeg.
+     *
+     * @var array
+     */
     protected $output_streams = [];
 
+    /**
+     * The command to run.
+     *
+     * @var string
+     */
     protected $command;
 
-    protected $timeout = 0;
+    /**
+     * The number of seconds the command will be allowed to run. "null" or "0" means no limit.
+     *
+     * @var int
+     */
+    protected $timeout;
 
     /**
-     * @param $destination
-     * @param \FFmphp\Formats\OutputFormat|string $format
-     * @param array|Callable $options
+     * Attaches a new output stream to the command.
+     *
+     * @param string                              $destination The url for the output stream. Usually this is a file
+     *                                                         name, but any protocol supported by FFmpeg can be used
+     *                                                         (ffmpeg -protocols).
+     * @param \FFmphp\Formats\OutputFormat|string $format      The name of the class responsible for setting the
+     *                                                         options used by the output.
+     * @param array|Callable                      $options     An array of options to be added to the current
+     *                                                         StreamBuilder, or a closure which will receive the
+     *                                                         current StreamBuilder instance.
+     *
      * @return $this
      */
     public function save($destination, $format = NullFormat::class, $options = [])
@@ -45,8 +78,14 @@ class CommandBuilder
     }
 
     /**
-     * @param callable|null $callback
+     * Runs the FFmpeg command.
+     *
+     * @param callable|null $callback A function to be called every time FFmpeg prints a new status line, which occurs
+     *                                approximately once every second. The function receives the current time of the
+     *                                input stream.
+     *
      * @throws \Symfony\Component\Process\Exception\ProcessFailedException
+     * @throws \Symfony\Component\Process\Exception\ProcessTimedOutException
      */
     public function run(Callable $callback = null)
     {
@@ -62,6 +101,11 @@ class CommandBuilder
         });
     }
 
+    /**
+     * Get the full command as an array that can be used by the Symfony Process.
+     *
+     * @return array
+     */
     public function toArray()
     {
         return array_merge(
@@ -72,6 +116,11 @@ class CommandBuilder
         );
     }
 
+    /**
+     * Get an array of the global ffmpeg options.
+     *
+     * @return array
+     */
     public function getOptionsArray()
     {
         $command = [];
@@ -88,6 +137,11 @@ class CommandBuilder
 
     }
 
+    /**
+     * Get all input streams and their options as an array.
+     *
+     * @return array
+     */
     public function getInputStreamsArray()
     {
         $array = [];
@@ -97,6 +151,11 @@ class CommandBuilder
         return $array;
     }
 
+    /**
+     * Get all output streams and their options as an array.
+     *
+     * @return array
+     */
     public function getOutputStreamsArray()
     {
         $array = [];
@@ -107,6 +166,8 @@ class CommandBuilder
     }
 
     /**
+     * Get the full FFmpeg command as it would be used on the command line.
+     *
      * @return string
      */
     public function toCommand()
@@ -117,9 +178,13 @@ class CommandBuilder
     }
 
     /**
-     * @param bool $condition
-     * @param Callable $callback
-     * @return \FFmphp\CommandBuilder
+     * Conditionally chain method calls onto the current CommandBuilder instance.
+     *
+     * @param bool     $condition
+     * @param Callable $callback The function called when $condition is true. It will receive the current command
+     *                           builder instance as its first argument.
+     *
+     * @return $this
      */
     public function when($condition, Callable $callback)
     {
@@ -130,7 +195,17 @@ class CommandBuilder
         return $this;
     }
 
-    public function withOptions($options)
+    /**
+     * Add an array of global options for the ffmpeg command.
+     *
+     * For options that do not have a value (such as "-y"), use a boolean value "true" to add the option
+     * or "false" to remove it.
+     *
+     * @param array $options
+     *
+     * @return $this
+     */
+    public function withOptions(array $options)
     {
         $builder = $this;
         foreach ($options as $option => $value) {
@@ -140,8 +215,14 @@ class CommandBuilder
     }
 
     /**
-     * @param $option
-     * @param bool|string $value
+     * Add a global option to the ffmpeg command.
+     *
+     * Use a boolean value of "false" to remove an option, or "true" if it does not
+     * accept a value.
+     *
+     * @param             string $option
+     * @param bool|string        $value
+     *
      * @return $this
      */
     public function withOption($option, $value = true)
@@ -150,18 +231,41 @@ class CommandBuilder
         return $this;
     }
 
+    /**
+     * Set the command to run.
+     *
+     * @param string $command The command to execute.
+     *
+     * @return $this
+     */
     public function command($command)
     {
         $this->command = $command;
         return $this;
     }
 
+    /**
+     * Set the time limit for the process.
+     *
+     * @param int $timeout The number of seconds to wait before the process times out.
+     *
+     * @return $this
+     */
     public function timeoutAfter($timeout)
     {
         $this->timeout = $timeout;
         return $this;
     }
 
+    /**
+     * Add an input stream to the command.
+     *
+     * @param       string $stream_url     The input url. Usually a file name, but any protocol supported by FFmpeg is
+     *                                     allowed (ffmpeg -protocols).
+     * @param array        $stream_options Additional options to apply to the input stream.
+     *
+     * @return $this
+     */
     public function withInput($stream_url, $stream_options = [])
     {
         $this->input_streams[] = (new StreamBuilder)
