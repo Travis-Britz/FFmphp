@@ -9,9 +9,11 @@ use FFmphp\Formats\Image\Poster;
 use FFmphp\Formats\Image\TileFiveByFive;
 use FFmphp\Formats\Image\TileFourByThree;
 use FFmphp\Formats\NullFormat;
+use FFmphp\Formats\Video\HLS;
 use FFmphp\Formats\Video\MP4;
 use FFmphp\Formats\Video\Webm;
 use Tests\Formats\ExtendedH265MP4;
+use Tests\Formats\ExtendedHLS_3s;
 use Tests\Formats\ExtendedSlowerMP4;
 
 class OutputFormatTest extends BaseTestCase
@@ -95,5 +97,23 @@ class OutputFormatTest extends BaseTestCase
                          ->toCommand();
 
         $this->assertCommandEquals('ffmpeg -i in -filter:v thumbnail,tile=4x3 -frames:v 1 -vsync vfr out', $command);
+    }
+
+    public function test_format_hls()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out', HLS::class)
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -i in -codec:v h264 -codec:a aac -hls_playlist_type vod -hls_time 2 -force_key_frames expr:gte(t,n_forced*2) out', $command);
+    }
+
+    public function test_format_hls_extended_class_overrides_settings()
+    {
+        $command = FFmphp::load('in')
+                         ->save('out', ExtendedHLS_3s::class)
+                         ->toCommand();
+
+        $this->assertCommandEquals('ffmpeg -i in -codec:v h264 -codec:a aac -hls_playlist_type vod -hls_time 3 -force_key_frames expr:gte(t,n_forced*3) -bufsize 7500k out', $command);
     }
 }

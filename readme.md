@@ -75,6 +75,7 @@ To make it easier to start writing code, these formats are included:
 
 -   [`FFmphp\Formats\Video\MP4`](src/FFmphp/Formats/Video/MP4.php)
 -   [`FFmphp\Formats\Video\Webm`](src/FFmphp/Formats/Video/Webm.php)
+-   [`FFmphp\Formats\Video\HLS`](src/FFmphp/Formats/Video/HLS.php) (m3u8)
 -   [`FFmphp\Formats\Audio\MP3`](src/FFmphp/Formats/Audio/MP3.php)
 -   [`FFmphp\Formats\Image\Poster`](src/FFmphp/Formats/Image/Poster.php) (Thumbnail)
 -   [`FFmphp\Formats\Image\TileFiveByFive`](src/FFmphp/Formats/Image/TileFiveByFive.php)
@@ -171,6 +172,7 @@ You can add an arbitrary number of outputs with one command. For example:
 ```php
 FFmphp::load($input)
     ->save('output.mp4', MP4::class)
+    ->save('output.m3u8', HLS::class)
     ->save('output.webm', Webm::class)
     ->save('output-audio.mp3', MP3::class)
     ->save('poster.jpg', Poster::class)
@@ -178,7 +180,7 @@ FFmphp::load($input)
     ->run();
 ```
 
-The above command would run FFmpeg once and create 5 files.
+The above command would run FFmpeg once and create 6 files plus the `.ts` segments for the HLS (m3u8) video.
 
 ### Getting the Command
 
