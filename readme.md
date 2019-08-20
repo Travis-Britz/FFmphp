@@ -49,7 +49,7 @@ FFmphp::load($infile)
     ->run();
 ```
 
-In the above example we are using the _fully qualified class name_ of the format. For the rest of the document we will use php's [`::class`](https://stackoverflow.com/a/42064777/6038111) syntax instead. Here is what the previous example looks like, rewritten:
+For the rest of the document we will use php's [`::class`](https://stackoverflow.com/a/42064777/6038111) syntax instead of providing the _fully qualified class name_ of the format. Here is what the previous example looks like when it is rewritten:
 
 ```php
 use FFmphp\Formats\Video\MP4;
@@ -68,20 +68,6 @@ FFmphp::load($infile)
     ->save('outfile.mp3', MP3::class)
     ->run();
 ```
-
-It is recommended to create an `OutputFormat` class for every type of file that you want to save. An output format includes codecs, bitrate, container, resolution, and more, but we will cover that later.
-
-To make it easier to start writing code, these formats are included:
-
--   [`FFmphp\Formats\Video\MP4`](src/FFmphp/Formats/Video/MP4.php)
--   [`FFmphp\Formats\Video\Webm`](src/FFmphp/Formats/Video/Webm.php)
--   [`FFmphp\Formats\Video\HLS`](src/FFmphp/Formats/Video/HLS.php) (m3u8)
--   [`FFmphp\Formats\Audio\MP3`](src/FFmphp/Formats/Audio/MP3.php)
--   [`FFmphp\Formats\Image\Poster`](src/FFmphp/Formats/Image/Poster.php) (Thumbnail)
--   [`FFmphp\Formats\Image\TileFiveByFive`](src/FFmphp/Formats/Image/TileFiveByFive.php)
--   [`FFmphp\Formats\Image\TileFourByThree`](src/FFmphp/Formats/Image/TileFourByThree.php)
-
-Note: Every application is unique, and you will likely want to create your own formats which are tuned to your needs.
 
 ### Saving Thumbnails
 
@@ -107,15 +93,45 @@ FFmphp::load($file)
     ->run();
 ```
 
+### Save Multiple Files with One Command
+
+You can add an arbitrary number of outputs with one command. For example:
+
+```php
+FFmphp::load($input)
+    ->save('output.mp4', MP4::class)
+    ->save('output.webm', Webm::class)
+    ->save('output-audio.mp3', MP3::class)
+    ->save('poster.jpg', Poster::class)
+    ->save('preview-5x5.jpg', TileFiveByFive::class)
+    ->run();
+```
+
+The above command would run FFmpeg once and create 5 files.
+
+Note: This is only provided as an example. Although the code may be more readable and make it easier to reason about the overall progress (or failures) during conversion, actual memory usage of FFmpeg increases for every output stream. In many cases the number of outputs you can chain on a single command instance will be limited by the available system memory and the resolution of your video streams.
+
 ## Advanced Usage
 
 ### Output Formats
 
-The best way to keep your project organized is to create a class for every type of file that you will save.
+The best way to keep your project organized is to create an `OutputFormat` class for every type of file that you will save. An output format includes codecs, bitrate, container, resolution, and more. Don't worry, it's actually much simpler than it sounds!
+
+To make it easier to start writing code, these formats are included:
+
+-   [`FFmphp\Formats\Video\MP4`](src/FFmphp/Formats/Video/MP4.php)
+-   [`FFmphp\Formats\Video\Webm`](src/FFmphp/Formats/Video/Webm.php)
+-   [`FFmphp\Formats\Video\HLS`](src/FFmphp/Formats/Video/HLS.php) (m3u8)
+-   [`FFmphp\Formats\Audio\MP3`](src/FFmphp/Formats/Audio/MP3.php)
+-   [`FFmphp\Formats\Image\Poster`](src/FFmphp/Formats/Image/Poster.php) (Thumbnail)
+-   [`FFmphp\Formats\Image\TileFiveByFive`](src/FFmphp/Formats/Image/TileFiveByFive.php)
+-   [`FFmphp\Formats\Image\TileFourByThree`](src/FFmphp/Formats/Image/TileFourByThree.php)
+
+You are welcome to use these classes in your own application, however in most cases it is better to use them only as a reference, and instead create your own formats which are tuned to the unique requirements of your application.
 
 You can either create your class from scratch, or you may _extend_ another format. Your class must implement the [`FFmphp\Formats\OutputFormat`](src/FFmphp/Formats/OutputFormat.php) interface, which has one method: `build()`.
 
-Here is an example of creating an MP4 video format that is tuned for animation content by _extending_ the existing MP4 class:
+For example, you may wish to create a format which is specifically tuned for animation content by _extending_ the existing MP4 class:
 
 ```php
 <?php
@@ -131,7 +147,7 @@ class MP4Anime extends MP4
 }
 ```
 
-Here is an another example, this time creating a new MP4 format from scratch:
+Or perhaps you want more control over the default encoder options. Here is an another complete example, this time creating a new MP4 format from scratch:
 
 ```php
 <?php
@@ -165,26 +181,9 @@ To use your output format, simply reference it in `save()`:
 ->save('output.mp4', MyMP4::class)
 ```
 
-### Save Multiple Files with One Command
-
-You can add an arbitrary number of outputs with one command. For example:
-
-```php
-FFmphp::load($input)
-    ->save('output.mp4', MP4::class)
-    ->save('output.m3u8', HLS::class)
-    ->save('output.webm', Webm::class)
-    ->save('output-audio.mp3', MP3::class)
-    ->save('poster.jpg', Poster::class)
-    ->save('preview-5x5.jpg', TileFiveByFive::class)
-    ->run();
-```
-
-The above command would run FFmpeg once and create 6 files plus the `.ts` segments for the HLS (m3u8) video.
-
 ### Getting the Command
 
-If you want to see the command that will be run (without running it), you can use `toCommand()`:
+If you want to inspect the command that will be run (without running it), you can use the `toCommand()` method:
 
 ```php
 FFmphp::load($input)
@@ -192,7 +191,7 @@ FFmphp::load($input)
     ->toCommand();
 ```
 
-Which will produce something like this:
+Which will return a string like this:
 
 ```
 ffmpeg -i "/path/to/input.mp4" -acodec aac -vcodec libx264 -b:a 128k -preset slower "output.mp4"
@@ -241,7 +240,7 @@ Using this feature excessively will make your code harder to read, which is why 
 
 ### The Progress Callback
 
-The `run()` method accepts a callback function which will be run approximately once every second for as long as FFmpeg is running. The function will receive the current time position of the input, formatted like `00:00:00.00`.
+The `run()` method accepts an optional callback function, which will be run approximately once every second for as long as FFmpeg is running. The function will receive the current time position of the input as reported by FFmpeg, formatted like `00:00:00.00`.
 
 For example:
 
